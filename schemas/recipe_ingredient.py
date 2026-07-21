@@ -31,6 +31,13 @@ class RecipeIngredientCreate(BaseModel):
         return self
 
 
+class RecipeIngredientUpdate(BaseModel):
+    quantity: Optional[float] = Field(default=None, gt=0)
+    measurement_unit: Optional[str] = Field(default=None, max_length=50)
+    optional: Optional[bool] = None
+    display_order: Optional[int] = None
+
+
 class RecipeIngredientOut(BaseModel):
     id: str
     recipe_id: str

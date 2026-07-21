@@ -104,6 +104,8 @@ class HouseholdService(BaseService[Household]):
         )
         if not membership:
             raise NotFoundError("Household is not available to this user")
+        if membership.role not in {"Owner", "Admin"}:
+            raise ValidationError("Only household owners and admins can invite members")
 
         invited_email = email.strip().lower()
         invited_user = self.db.query(User).filter(User.email.ilike(invited_email)).first()

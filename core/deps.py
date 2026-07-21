@@ -42,11 +42,22 @@ CurrentUser = Annotated[dict, Depends(get_current_user)]
 
 
 def get_household_id(current_user: dict) -> str:
-    """Extract the household ID from the current user.
+    """Return the user's selected active household.
 
-    Raises HTTPException 400 if the user is not attached to a household.
+    Household membership, rather than ownership, is the authorization boundary.
     """
-    household_id = current_user["user"].households[0].id if current_user["user"].households else None
+    user = current_user["user"]
+    active_memberships = [
+        membership
+        for membership in user.household_members
+        if membership.is_active
+    ]
+    household_ids = {membership.household_id for membership in active_memberships}
+    household_id = (
+        user.default_household_id
+        if user.default_household_id in household_ids
+        else active_memberships[0].household_id if active_memberships else None
+    )
     if not household_id:
         raise HTTPException(status_code=400, detail="User is not attached to a household")
     return household_id

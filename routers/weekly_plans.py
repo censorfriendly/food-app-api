@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, Query
 from core.deps import DbSession, CurrentUser, get_household_id
 from exceptions.custom import AppError
 from schemas.common import SuccessResponse
-from schemas.weekly_plan import WeeklyPlanCreate
+from schemas.weekly_plan import WeeklyPlanCreate, WeeklyPlanUpdate
 from services.weekly_plan_service import WeeklyPlanService
 
 router = APIRouter(prefix="/api/v1/weekly-plans", tags=["Weekly Plans"])
@@ -49,3 +49,51 @@ async def list_weekly_plans(
         raise exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail="Weekly plan listing failed") from exc
+
+
+@router.get("/{plan_id}", response_model=SuccessResponse)
+async def get_weekly_plan(plan_id: str, db: DbSession, current_user: CurrentUser):
+    try:
+        household_id = get_household_id(current_user)
+
+        service = WeeklyPlanService(db)
+        data = service.get(plan_id=plan_id, household_id=household_id)
+        return SuccessResponse(data=data)
+    except AppError as exc:
+        raise exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="Failed to get weekly plan") from exc
+
+
+@router.put("/{plan_id}", response_model=SuccessResponse)
+async def update_weekly_plan(
+    plan_id: str, payload: WeeklyPlanUpdate, db: DbSession, current_user: CurrentUser
+):
+    try:
+        household_id = get_household_id(current_user)
+
+        service = WeeklyPlanService(db)
+        data = service.update(
+            plan_id=plan_id,
+            household_id=household_id,
+            payload=payload.model_dump(exclude_unset=True),
+        )
+        return SuccessResponse(data=data)
+    except AppError as exc:
+        raise exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="Failed to update weekly plan") from exc
+
+
+@router.delete("/{plan_id}", response_model=SuccessResponse)
+async def delete_weekly_plan(plan_id: str, db: DbSession, current_user: CurrentUser):
+    try:
+        household_id = get_household_id(current_user)
+
+        service = WeeklyPlanService(db)
+        success = service.delete(plan_id=plan_id, household_id=household_id)
+        return SuccessResponse(data={"deleted": success})
+    except AppError as exc:
+        raise exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="Failed to delete weekly plan") from exc

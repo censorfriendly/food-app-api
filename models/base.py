@@ -15,8 +15,10 @@ class TimestampMixin:
     )
 
 
+from sqlalchemy import Boolean
+
 class SoftDeleteMixin:
     """Adds is_deleted and deleted_at columns for soft deletes."""
 
-    is_deleted: Mapped[str] = mapped_column(String(1), default="0", nullable=False)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

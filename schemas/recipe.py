@@ -12,6 +12,15 @@ class RecipeCreate(BaseModel):
     notes: Optional[str] = None
 
 
+class RecipeUpdate(BaseModel):
+    title: Optional[str] = Field(None, min_length=1, max_length=255)
+    description: Optional[str] = None
+    servings: Optional[int] = None
+    prep_minutes: Optional[int] = None
+    cook_minutes: Optional[int] = None
+    notes: Optional[str] = None
+
+
 class RecipeOut(BaseModel):
     id: str
     household_id: str
@@ -23,3 +32,4 @@ class RecipeOut(BaseModel):
     notes: Optional[str] = None
 
     model_config = {"from_attributes": True}
+

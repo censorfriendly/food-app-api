@@ -8,6 +8,11 @@ class IngredientCreate(BaseModel):
     category: Optional[str] = Field(None, max_length=100)
 
 
+class IngredientUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=255)
+    category: Optional[str] = Field(None, max_length=100)
+
+
 class IngredientOut(BaseModel):
     id: str
     name: str
@@ -15,3 +20,4 @@ class IngredientOut(BaseModel):
     category: Optional[str] = None
 
     model_config = {"from_attributes": True}
+

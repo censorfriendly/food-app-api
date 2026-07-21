@@ -17,7 +17,13 @@ if TYPE_CHECKING:
 
 class Ingredient(Base, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "ingredients"
-    __table_args__ = (UniqueConstraint("normalized_name", name="uq_ingredients_normalized_name"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "household_id",
+            "normalized_name",
+            name="uq_ingredients_household_normalized_name",
+        ),
+    )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     household_id: Mapped[str | None] = mapped_column(

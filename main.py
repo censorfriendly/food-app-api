@@ -13,18 +13,11 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup - recreate the schema from the current models in development mode.
-    # This avoids stale PostgreSQL tables from older integer-based user IDs.
+    # Schema changes belong in Alembic migrations, not application startup.
     from database.connection import Base, engine
 
     if settings.DEBUG:
-        try:
-            Base.metadata.drop_all(bind=engine)
-        except Exception:
-            # Circular dependency between users/households prevents clean drop.
-            # Tables will be recreated on next clean startup or via alembic.
-            pass
-    Base.metadata.create_all(bind=engine)
+        Base.metadata.create_all(bind=engine)
     yield
     # Shutdown
 
@@ -56,14 +49,15 @@ async def app_error_handler(request, exc):
     )
 
 # Mount routers
-from routers import health, auth, items, households, recipes, ingredients, recipe_ingredients, meals, weekly_plans
+from routers import health, auth, households, recipes, ingredients, recipe_ingredients, weekly_plans, planned_meals, shopping_lists
 
 app.include_router(health.router)
 app.include_router(auth.router)
-app.include_router(items.router)
 app.include_router(households.router)
 app.include_router(recipes.router)
 app.include_router(ingredients.router)
 app.include_router(recipe_ingredients.router)
-app.include_router(meals.router)
 app.include_router(weekly_plans.router)
+app.include_router(planned_meals.router)
+app.include_router(shopping_lists.router)
+

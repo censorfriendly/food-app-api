@@ -12,12 +12,9 @@ from models.base import SoftDeleteMixin, TimestampMixin
 if TYPE_CHECKING:
     from models.household_member import HouseholdMember
     from models.ingredient import Ingredient
-    from models.meal import Meal
     from models.recipe import Recipe
     from models.user import User
     from models.weekly_plan import WeeklyPlan
-
-
 class Household(Base, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "households"
     __table_args__ = (UniqueConstraint("name", "owner_user_id", name="uq_household_name_owner"),)
@@ -36,7 +33,8 @@ class Household(Base, TimestampMixin, SoftDeleteMixin):
     )
     ingredients: Mapped[list["Ingredient"]] = relationship(back_populates="household", cascade="all, delete-orphan")
     recipes: Mapped[list["Recipe"]] = relationship(back_populates="household", cascade="all, delete-orphan")
-    meals: Mapped[list["Meal"]] = relationship(back_populates="household", cascade="all, delete-orphan")
     weekly_plans: Mapped[list["WeeklyPlan"]] = relationship(
         back_populates="household", cascade="all, delete-orphan"
     )
+
+

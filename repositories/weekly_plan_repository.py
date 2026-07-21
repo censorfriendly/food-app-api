@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Optional
 
 from sqlalchemy.orm import Session
@@ -23,7 +24,7 @@ class WeeklyPlanRepository(BaseRepository[WeeklyPlan]):
             .all()
         )
 
-    def get_for_week(self, household_id: str, week_start: str) -> Optional[WeeklyPlan]:
+    def get_for_week(self, household_id: str, week_start: date) -> Optional[WeeklyPlan]:
         return (
             self.db.query(WeeklyPlan)
             .filter(WeeklyPlan.household_id == household_id, WeeklyPlan.week_start == week_start)

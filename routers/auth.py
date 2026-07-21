@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from core.deps import DbSession
+from core.deps import CurrentUser, DbSession
 from exceptions.custom import ValidationError
 from schemas.common import SuccessResponse
 from schemas.user import FakeLoginRequest, GoogleLoginRequest, RefreshTokenRequest
 from services.auth_service import AuthService
+from config.settings import get_settings
 
 router = APIRouter(prefix="/api/v1/auth", tags=["Authentication"])
+settings = get_settings()
 
 
 @router.post("/fake-login", response_model=SuccessResponse)
@@ -15,6 +17,8 @@ async def fake_login(request: FakeLoginRequest, db: DbSession):
     Development-only endpoint that returns fake JWT tokens and a user profile.
     REMOVE BEFORE PRODUCTION.
     """
+    if not settings.DEBUG:
+        raise HTTPException(status_code=404, detail="Not found")
     auth_service = AuthService(db)
     try:
         data = auth_service.fake_login(request.email)
@@ -50,7 +54,6 @@ async def refresh_token(request: RefreshTokenRequest, db: DbSession):
 
 
 @router.post("/logout", response_model=SuccessResponse)
-async def logout(db: DbSession):
-    """Invalidate current session."""
-    # TODO: Implement with authenticated user context
-    return SuccessResponse(data={"message": "Logged out successfully"})
+async def logout(current_user: CurrentUser):
+    """End the client session; token revocation requires server-side token storage."""
+    return SuccessResponse(data={"message": "Logged out successfully", "user_id": current_user["user"].id})
