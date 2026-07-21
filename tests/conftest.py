@@ -5,7 +5,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from main import app
-from database.connection import Base, get_db
+from database.connection import Base
+from core.deps import get_db
 
 
 # Use SQLite for tests to avoid requiring PostgreSQL

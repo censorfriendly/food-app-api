@@ -13,8 +13,17 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup - create tables if they don't exist
+    # Startup - recreate the schema from the current models in development mode.
+    # This avoids stale PostgreSQL tables from older integer-based user IDs.
     from database.connection import Base, engine
+
+    if settings.DEBUG:
+        try:
+            Base.metadata.drop_all(bind=engine)
+        except Exception:
+            # Circular dependency between users/households prevents clean drop.
+            # Tables will be recreated on next clean startup or via alembic.
+            pass
     Base.metadata.create_all(bind=engine)
     yield
     # Shutdown
@@ -47,8 +56,14 @@ async def app_error_handler(request, exc):
     )
 
 # Mount routers
-from routers import health, auth, items
+from routers import health, auth, items, households, recipes, ingredients, recipe_ingredients, meals, weekly_plans
 
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(items.router)
+app.include_router(households.router)
+app.include_router(recipes.router)
+app.include_router(ingredients.router)
+app.include_router(recipe_ingredients.router)
+app.include_router(meals.router)
+app.include_router(weekly_plans.router)

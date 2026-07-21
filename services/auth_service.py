@@ -6,9 +6,10 @@ from sqlalchemy.orm import Session
 
 from config.settings import get_settings
 from core.security import create_access_token, create_refresh_token
+from models.household import Household
+from models.household_member import HouseholdMember
 from models.user import User
 from repositories.user_repository import UserRepository
-from schemas.user import UserOut
 
 settings = get_settings()
 
@@ -26,8 +27,24 @@ class AuthService:
         return {
             "access_token": access_token,
             "refresh_token": refresh_token,
-            "user": UserOut.model_validate(user).model_dump(),
+            "user": {
+                "id": str(user.id),
+                "email": user.email,
+                "name": user.first_name or user.email,
+                "is_active": user.is_active,
+                "is_fake_login": user.is_fake_login,
+                "default_household_id": user.default_household_id,
+            },
         }
+
+    def _create_default_household(self, user: User) -> None:
+        household = Household(name=f"{user.first_name or 'My'} Household", owner_user_id=user.id, timezone="UTC")
+        self.db.add(household)
+        self.db.flush()
+
+        membership = HouseholdMember(household_id=household.id, user_id=user.id, role="Owner", is_active=True)
+        self.db.add(membership)
+        user.default_household_id = household.id
 
     def fake_login(self, email: str = "dev@example.com") -> dict:
         """Development-only login that returns fake tokens."""
@@ -36,11 +53,26 @@ class AuthService:
         if not user:
             user = User(
                 email=email,
-                name="Developer User",
+                first_name="Developer",
+                last_name="User",
                 is_fake_login=True,
                 last_login_at=datetime.now(timezone.utc),
             )
             self.user_repo.create(user)
+            self._create_default_household(user)
+            self.db.commit()
+
+        if not user.default_household_id:
+            household = (
+                self.db.query(Household)
+                .join(HouseholdMember)
+                .filter(HouseholdMember.user_id == user.id, HouseholdMember.is_active.is_(True))
+                .first()
+            )
+            if household:
+                user.default_household_id = household.id
+            else:
+                self._create_default_household(user)
 
         user.last_login_at = datetime.now(timezone.utc)
         self.db.commit()
@@ -77,7 +109,7 @@ class AuthService:
         if not user_id:
             raise ValueError("Invalid token payload")
 
-        user = self.user_repo.get_by_id(int(user_id))
+        user = self.user_repo.get_by_id(user_id)
         if not user or not user.is_active:
             raise ValueError("User not found or inactive")
 
