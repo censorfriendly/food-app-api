@@ -139,6 +139,9 @@ class PlannedMealService(BaseService[PlannedMeal]):
                 )
             planned_meal.meal_time = payload["meal_time"]
 
+        if "completed" in payload:
+            planned_meal.completed = payload["completed"]
+
         if "notes" in payload:
             planned_meal.notes = payload["notes"]
 

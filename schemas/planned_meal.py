@@ -8,6 +8,7 @@ class PlannedMealCreate(BaseModel):
     week_start: date
     day_of_week: str = Field(..., min_length=1, max_length=20)
     meal_time: str = Field(..., min_length=1, max_length=20)
+    completed: bool = False
     notes: str | None = None
 
 
@@ -15,6 +16,7 @@ class PlannedMealUpdate(BaseModel):
     recipe_id: str | None = Field(None, min_length=1, max_length=36)
     day_of_week: str | None = Field(None, min_length=1, max_length=20)
     meal_time: str | None = Field(None, min_length=1, max_length=20)
+    completed: bool | None = None
     notes: str | None = None
 
 
@@ -24,6 +26,7 @@ class PlannedMealOut(BaseModel):
     recipe_id: str
     day_of_week: str
     meal_time: str
+    completed: bool = False
     notes: str | None = None
 
     model_config = {"from_attributes": True}

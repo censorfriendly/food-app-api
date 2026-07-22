@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import Boolean, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database.connection import Base
@@ -26,6 +26,7 @@ class PlannedMeal(Base, TimestampMixin, SoftDeleteMixin):
     )
     day_of_week: Mapped[str] = mapped_column(String(20), nullable=False)
     meal_time: Mapped[str] = mapped_column(String(20), nullable=False)
+    completed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     notes: Mapped[str | None] = mapped_column(String(2000), nullable=True)
 
     weekly_plan: Mapped["WeeklyPlan"] = relationship(back_populates="planned_meals")

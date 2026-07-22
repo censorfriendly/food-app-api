@@ -47,6 +47,22 @@ async def list_ingredients(db: DbSession, current_user: CurrentUser):
         raise HTTPException(status_code=500, detail="Failed to list ingredients") from exc
 
 
+@router.get("/search", response_model=SuccessResponse)
+async def search_ingredients(q: str, db: DbSession, current_user: CurrentUser):
+    """Search ingredients by name, case insensitive."""
+    try:
+        household_id = get_household_id(current_user)
+
+        service = IngredientService(db)
+        data = service.search_ingredients(household_id, q)
+        return SuccessResponse(data=data)
+    except AppError as exc:
+        raise exc
+    except Exception as exc:
+        logger.error(f"[search_ingredients] Unexpected exception: {type(exc).__name__}: {exc}")
+        raise HTTPException(status_code=500, detail="Failed to search ingredients") from exc
+
+
 @router.get("/{ingredient_id}", response_model=SuccessResponse)
 async def get_ingredient(ingredient_id: str, db: DbSession, current_user: CurrentUser):
     """Get a single ingredient by ID."""
@@ -94,19 +110,4 @@ async def delete_ingredient(ingredient_id: str, db: DbSession, current_user: Cur
         logger.error(f"[delete_ingredient] Unexpected exception: {type(exc).__name__}: {exc}")
         raise HTTPException(status_code=500, detail="Failed to delete ingredient") from exc
 
-
-@router.get("/search", response_model=SuccessResponse)
-async def search_ingredients(q: str, db: DbSession, current_user: CurrentUser):
-    """Search ingredients by name, case insensitive."""
-    try:
-        household_id = get_household_id(current_user)
-
-        service = IngredientService(db)
-        data = service.search_ingredients(household_id, q)
-        return SuccessResponse(data=data)
-    except AppError as exc:
-        raise exc
-    except Exception as exc:
-        logger.error(f"[search_ingredients] Unexpected exception: {type(exc).__name__}: {exc}")
-        raise HTTPException(status_code=500, detail="Failed to search ingredients") from exc
 

@@ -18,6 +18,7 @@ class NestedPlannedMealOut(BaseModel):
     recipe_id: str
     day_of_week: str
     meal_time: str
+    completed: bool = False
     notes: Optional[str] = None
     recipe_title: Optional[str] = None
     recipe_description: Optional[str] = None
