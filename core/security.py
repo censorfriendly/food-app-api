@@ -33,6 +33,19 @@ def decode_token(token: str) -> dict | None:
         return None
 
 
+def validate_refresh_token(token: str) -> dict:
+    """Decode and validate that a token is a refresh-type JWT.
+
+    Raises AuthenticationError if the token is invalid or not a refresh token.
+    """
+    payload = decode_token(token)
+    if payload is None:
+        raise AuthenticationError("Invalid or expired refresh token")
+    if payload.get("type") != "refresh":
+        raise AuthenticationError("Token is not a refresh token")
+    return payload
+
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 

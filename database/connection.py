@@ -2,7 +2,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, Query, Session, sessionmaker
 
 from config.settings import get_settings
-from models.base import SoftDeleteMixin
 
 settings = get_settings()
 
@@ -25,6 +24,7 @@ class FilteredSession(Session):
 
     def query(self, *args, **kwargs) -> Query:
         # Lazy import to prevent circular dependency with models/__init__.py
+        from models.base import SoftDeleteMixin
 
         query = super().query(*args, **kwargs)
         if self._include_deleted:
@@ -34,7 +34,7 @@ class FilteredSession(Session):
         for desc in query.column_descriptions:
             model = desc.get("type")
             if model and issubclass(model, SoftDeleteMixin):
-                query = query.filter(not model.is_deleted)
+                query = query.filter(model.is_deleted.is_(False))
         return query
 
 

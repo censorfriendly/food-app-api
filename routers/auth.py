@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException
 
 from config.settings import get_settings
-from core.deps import CurrentUser, DbSession
+from core.deps import CurrentUser, DbSession, RefreshToken
 from exceptions.custom import ValidationError
 from schemas.common import SuccessResponse
-from schemas.user import FakeLoginRequest, GoogleLoginRequest, RefreshTokenRequest
+from schemas.user import FakeLoginRequest, GoogleLoginRequest
 from services.auth_service import AuthService
 
 router = APIRouter(prefix="/api/v1/auth", tags=["Authentication"])
@@ -41,11 +41,11 @@ async def google_login(request: GoogleLoginRequest, db: DbSession):
 
 
 @router.post("/refresh", response_model=SuccessResponse)
-async def refresh_token(request: RefreshTokenRequest, db: DbSession):
-    """Refresh access token using a valid refresh token."""
+async def refresh_token(refresh_token: RefreshToken, db: DbSession):
+    """Refresh access token using a valid refresh token from the Authorization header."""
     auth_service = AuthService(db)
     try:
-        data = auth_service.refresh(request.refresh_token)
+        data = auth_service.refresh(refresh_token)
         return SuccessResponse(data=data)
     except ValueError as e:
         raise ValidationError(str(e)) from e
