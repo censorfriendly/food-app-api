@@ -23,7 +23,7 @@ class ShoppingList(Base, TimestampMixin, SoftDeleteMixin):
     )
     generated_at: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
-    weekly_plan: Mapped["WeeklyPlan"] = relationship(back_populates="shopping_list")
-    items: Mapped[list["ShoppingListItem"]] = relationship(
+    weekly_plan: Mapped[WeeklyPlan] = relationship(back_populates="shopping_list")
+    items: Mapped[list[ShoppingListItem]] = relationship(
         back_populates="shopping_list", cascade="all, delete-orphan"
     )

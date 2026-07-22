@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -15,8 +14,8 @@ class UserRepository(BaseRepository[User]):
     def model_type(self):
         return User
 
-    def get_by_email(self, email: str) -> Optional[User]:
+    def get_by_email(self, email: str) -> User | None:
         return self.db.query(User).filter(User.email == email).first()
 
-    def get_by_google_sub(self, google_sub: str) -> Optional[User]:
+    def get_by_google_sub(self, google_sub: str) -> User | None:
         return self.db.query(User).filter(User.google_sub == google_sub).first()

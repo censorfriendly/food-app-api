@@ -6,7 +6,7 @@ from exceptions.custom import NotFoundError, ValidationError
 from models.ingredient import Ingredient
 from models.recipe import Recipe
 from models.recipe_ingredient import RecipeIngredient
-from schemas.recipe_ingredient import RecipeIngredientOut, RecipeIngredientUpdate
+from schemas.recipe_ingredient import RecipeIngredientOut
 
 
 class RecipeIngredientService:
@@ -17,11 +17,14 @@ class RecipeIngredientService:
 
     def verify_recipe(self, recipe_id: str, household_id: str) -> Recipe:
         """Verify the recipe exists and belongs to the user's household."""
-        recipe = self.db.query(Recipe).filter(
-            Recipe.id == recipe_id,
-            Recipe.household_id == household_id,
-            Recipe.is_deleted == False,
-        ).first()
+        recipe = (
+            self.db.query(Recipe)
+            .filter(
+                Recipe.id == recipe_id,
+                Recipe.household_id == household_id,
+            )
+            .first()
+        )
         if not recipe:
             raise NotFoundError("Recipe not found")
         return recipe
@@ -31,22 +34,28 @@ class RecipeIngredientService:
     ) -> Ingredient:
         """Resolve an ingredient by ID, by name, or create a new one."""
         if ingredient_id:
-            ingredient = self.db.query(Ingredient).filter(
-                Ingredient.id == ingredient_id,
-                Ingredient.household_id == household_id,
-                Ingredient.is_deleted == False,
-            ).first()
+            ingredient = (
+                self.db.query(Ingredient)
+                .filter(
+                    Ingredient.id == ingredient_id,
+                    Ingredient.household_id == household_id,
+                )
+                .first()
+            )
             if ingredient:
                 return ingredient
             raise NotFoundError("Ingredient not found")
 
         if ingredient_name:
             normalized_name = ingredient_name.strip().lower()
-            ingredient = self.db.query(Ingredient).filter(
-                Ingredient.normalized_name == normalized_name,
-                Ingredient.household_id == household_id,
-                Ingredient.is_deleted == False,
-            ).first()
+            ingredient = (
+                self.db.query(Ingredient)
+                .filter(
+                    Ingredient.normalized_name == normalized_name,
+                    Ingredient.household_id == household_id,
+                )
+                .first()
+            )
             if ingredient:
                 return ingredient
 
@@ -71,9 +80,7 @@ class RecipeIngredientService:
             .order_by(RecipeIngredient.display_order)
             .all()
         )
-        return [
-            RecipeIngredientOut.model_validate(ri).model_dump() for ri in ingredients
-        ]
+        return [RecipeIngredientOut.model_validate(ri).model_dump() for ri in ingredients]
 
     def create(
         self,
@@ -103,10 +110,13 @@ class RecipeIngredientService:
 
     def update(self, ingredient_id: str, payload: dict[str, Any]) -> dict[str, Any]:
         """Update a recipe ingredient and return serialized data."""
-        recipe_ingredient = self.db.query(RecipeIngredient).filter(
-            RecipeIngredient.id == ingredient_id,
-            RecipeIngredient.is_deleted == False,
-        ).first()
+        recipe_ingredient = (
+            self.db.query(RecipeIngredient)
+            .filter(
+                RecipeIngredient.id == ingredient_id,
+            )
+            .first()
+        )
         if not recipe_ingredient:
             raise NotFoundError("Recipe ingredient not found")
 
@@ -123,10 +133,13 @@ class RecipeIngredientService:
 
     def delete(self, ingredient_id: str) -> bool:
         """Soft-delete a recipe ingredient."""
-        recipe_ingredient = self.db.query(RecipeIngredient).filter(
-            RecipeIngredient.id == ingredient_id,
-            RecipeIngredient.is_deleted == False,
-        ).first()
+        recipe_ingredient = (
+            self.db.query(RecipeIngredient)
+            .filter(
+                RecipeIngredient.id == ingredient_id,
+            )
+            .first()
+        )
         if not recipe_ingredient:
             raise NotFoundError("Recipe ingredient not found")
 

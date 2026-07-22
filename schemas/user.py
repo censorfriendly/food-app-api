@@ -1,18 +1,18 @@
-from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
 class UserCreate(BaseModel):
     email: str = Field(..., min_length=1, max_length=255)
-    name: Optional[str] = Field(None, max_length=255)
-    picture: Optional[str] = None
+    name: str | None = Field(None, max_length=255)
+    picture: str | None = None
 
 
 class UserOut(BaseModel):
     id: int
     email: str
-    name: Optional[str] = None
-    picture: Optional[str] = None
+    name: str | None = None
+    picture: str | None = None
     is_active: bool
     is_fake_login: bool
 
@@ -35,4 +35,4 @@ class RefreshTokenRequest(BaseModel):
 
 
 class FakeLoginRequest(BaseModel):
-    email: Optional[str] = "dev@example.com"
+    email: str | None = "dev@example.com"

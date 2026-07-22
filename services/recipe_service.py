@@ -65,7 +65,7 @@ class RecipeService(BaseService[Recipe]):
         if not recipe or recipe.household_id != household_id:
             raise NotFoundError("Recipe not found")
 
-        if "title" in payload and payload["title"]:
+        if payload.get("title"):
             existing = self.recipe_repo.get_by_title(household_id, payload["title"].strip())
             if existing and existing.id != recipe_id:
                 raise ConflictError("Recipe already exists for this household")

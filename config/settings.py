@@ -1,10 +1,10 @@
-from pydantic_settings import BaseSettings
-from pydantic import field_validator
-from typing import Optional, List
 from functools import lru_cache
 
+from pydantic import field_validator
+from pydantic_settings import BaseSettings
 
-def parse_list(value: str) -> List[str]:
+
+def parse_list(value: str) -> list[str]:
     """Parse a comma-separated env var into a list, handling '*' as a wildcard."""
     if not value:
         return ["*"]
@@ -33,11 +33,11 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # Google OAuth / SSO
-    GOOGLE_CLIENT_ID: Optional[str] = None
-    GOOGLE_CLIENT_SECRET: Optional[str] = None
+    GOOGLE_CLIENT_ID: str | None = None
+    GOOGLE_CLIENT_SECRET: str | None = None
 
     # CORS
-    ALLOWED_ORIGINS: List[str] = ["*"]
+    ALLOWED_ORIGINS: list[str] = ["*"]
 
     # Rate Limiting
     RATE_LIMIT_AUTH_CALLS: int = 10

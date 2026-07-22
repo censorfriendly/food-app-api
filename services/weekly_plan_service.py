@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session, joinedload
 
 from exceptions.custom import ConflictError, NotFoundError, ValidationError
 from models.planned_meal import PlannedMeal
-from models.recipe import Recipe
 from models.weekly_plan import WeeklyPlan
 from repositories.weekly_plan_repository import WeeklyPlanRepository
 from schemas.weekly_plan import NestedPlannedMealOut, WeeklyPlanOut
@@ -65,13 +64,10 @@ class WeeklyPlanService(BaseService[WeeklyPlan]):
         """Get a single weekly plan by ID with household verification."""
         plan = (
             self.db.query(WeeklyPlan)
-            .options(
-                joinedload(WeeklyPlan.planned_meals).joinedload(PlannedMeal.recipe)
-            )
+            .options(joinedload(WeeklyPlan.planned_meals).joinedload(PlannedMeal.recipe))
             .filter(
                 WeeklyPlan.id == plan_id,
                 WeeklyPlan.household_id == household_id,
-                WeeklyPlan.is_deleted == False,
             )
             .first()
         )
@@ -106,18 +102,20 @@ class WeeklyPlanService(BaseService[WeeklyPlan]):
 
     def update(self, plan_id: str, household_id: str, payload: dict[str, Any]) -> dict[str, Any]:
         """Update a weekly plan."""
-        plan = self.db.query(WeeklyPlan).filter(
-            WeeklyPlan.id == plan_id,
-            WeeklyPlan.household_id == household_id,
-            WeeklyPlan.is_deleted == False,
-        ).first()
+        plan = (
+            self.db.query(WeeklyPlan)
+            .filter(
+                WeeklyPlan.id == plan_id,
+                WeeklyPlan.household_id == household_id,
+            )
+            .first()
+        )
         if not plan:
             raise NotFoundError("Weekly plan not found")
 
         for key, value in payload.items():
             if hasattr(plan, key) and value is not None:
                 setattr(plan, key, value)
-
         self.db.commit()
         self.db.refresh(plan)
         self.db.refresh(plan, ["planned_meals"])
@@ -127,11 +125,14 @@ class WeeklyPlanService(BaseService[WeeklyPlan]):
 
     def delete(self, plan_id: str, household_id: str) -> bool:
         """Soft-delete a weekly plan."""
-        plan = self.db.query(WeeklyPlan).filter(
-            WeeklyPlan.id == plan_id,
-            WeeklyPlan.household_id == household_id,
-            WeeklyPlan.is_deleted == False,
-        ).first()
+        plan = (
+            self.db.query(WeeklyPlan)
+            .filter(
+                WeeklyPlan.id == plan_id,
+                WeeklyPlan.household_id == household_id,
+            )
+            .first()
+        )
         if not plan:
             raise NotFoundError("Weekly plan not found")
 

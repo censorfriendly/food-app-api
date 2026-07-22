@@ -1,7 +1,6 @@
 from datetime import date
-from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class WeeklyPlanCreate(BaseModel):
@@ -9,7 +8,7 @@ class WeeklyPlanCreate(BaseModel):
 
 
 class WeeklyPlanUpdate(BaseModel):
-    week_start: Optional[date] = None
+    week_start: date | None = None
 
 
 class NestedPlannedMealOut(BaseModel):
@@ -19,9 +18,9 @@ class NestedPlannedMealOut(BaseModel):
     day_of_week: str
     meal_time: str
     completed: bool = False
-    notes: Optional[str] = None
-    recipe_title: Optional[str] = None
-    recipe_description: Optional[str] = None
+    notes: str | None = None
+    recipe_title: str | None = None
+    recipe_description: str | None = None
 
     model_config = {"from_attributes": True}
 
@@ -30,7 +29,7 @@ class WeeklyPlanOut(BaseModel):
     id: str
     household_id: str
     week_start: date
-    created_by: Optional[str] = None
+    created_by: str | None = None
     planned_meals: list[NestedPlannedMealOut] = []
 
     model_config = {"from_attributes": True}

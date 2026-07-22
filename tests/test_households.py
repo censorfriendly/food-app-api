@@ -92,6 +92,16 @@ async def test_invite_user_to_household(async_client: AsyncClient, db_session):
     service = HouseholdService(db_session)
     household = service.create_household(user, "Invite House", "UTC")
 
+    # Create the invited user so the invitation tests the "joined" path
+    invited_user = User(
+        email="household-default@example.com",
+        first_name="Invited",
+        last_name="User",
+        is_fake_login=True,
+    )
+    db_session.add(invited_user)
+    db_session.commit()
+
     response = await async_client.post(
         f"/api/v1/households/{household['id']}/invite",
         json={"email": "household-default@example.com"},

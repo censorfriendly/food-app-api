@@ -30,8 +30,8 @@ class Recipe(Base, TimestampMixin, SoftDeleteMixin):
     notes: Mapped[str | None] = mapped_column(String(2000), nullable=True)
     created_by: Mapped[str | None] = mapped_column(String(36), nullable=True)
 
-    household: Mapped["Household"] = relationship(back_populates="recipes")
-    ingredients: Mapped[list["RecipeIngredient"]] = relationship(
+    household: Mapped[Household] = relationship(back_populates="recipes")
+    ingredients: Mapped[list[RecipeIngredient]] = relationship(
         back_populates="recipe", cascade="all, delete-orphan"
     )
-    steps: Mapped[list["RecipeStep"]] = relationship(back_populates="recipe", cascade="all, delete-orphan")
+    steps: Mapped[list[RecipeStep]] = relationship(back_populates="recipe", cascade="all, delete-orphan")

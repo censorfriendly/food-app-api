@@ -12,7 +12,6 @@ from repositories.weekly_plan_repository import WeeklyPlanRepository
 from schemas.planned_meal import PlannedMealOut
 from services.base import BaseService
 
-
 VALID_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 VALID_MEAL_TIMES = ["Breakfast", "Lunch", "Dinner", "Snack"]
 
@@ -44,11 +43,14 @@ class PlannedMealService(BaseService[PlannedMeal]):
 
     def _verify_recipe(self, recipe_id: str, household_id: str) -> Recipe:
         """Verify the recipe exists and belongs to the household."""
-        recipe = self.db.query(Recipe).filter(
-            Recipe.id == recipe_id,
-            Recipe.household_id == household_id,
-            Recipe.is_deleted == False,
-        ).first()
+        recipe = (
+            self.db.query(Recipe)
+            .filter(
+                Recipe.id == recipe_id,
+                Recipe.household_id == household_id,
+            )
+            .first()
+        )
         if not recipe:
             raise NotFoundError("Recipe not found")
         return recipe
@@ -69,14 +71,10 @@ class PlannedMealService(BaseService[PlannedMeal]):
         3. Create a planned recipe entry.
         """
         if day_of_week not in VALID_DAYS:
-            raise ValidationError(
-                f"Invalid day of week. Must be one of: {', '.join(VALID_DAYS)}"
-            )
+            raise ValidationError(f"Invalid day of week. Must be one of: {', '.join(VALID_DAYS)}")
 
         if meal_time not in VALID_MEAL_TIMES:
-            raise ValidationError(
-                f"Invalid meal time. Must be one of: {', '.join(VALID_MEAL_TIMES)}"
-            )
+            raise ValidationError(f"Invalid meal time. Must be one of: {', '.join(VALID_MEAL_TIMES)}")
 
         self._verify_recipe(recipe_id, household_id)
         weekly_plan = self._get_or_create_weekly_plan(household_id, week_start)
@@ -127,16 +125,12 @@ class PlannedMealService(BaseService[PlannedMeal]):
 
         if "day_of_week" in payload:
             if payload["day_of_week"] not in VALID_DAYS:
-                raise ValidationError(
-                    f"Invalid day of week. Must be one of: {', '.join(VALID_DAYS)}"
-                )
+                raise ValidationError(f"Invalid day of week. Must be one of: {', '.join(VALID_DAYS)}")
             planned_meal.day_of_week = payload["day_of_week"]
 
         if "meal_time" in payload:
             if payload["meal_time"] not in VALID_MEAL_TIMES:
-                raise ValidationError(
-                    f"Invalid meal time. Must be one of: {', '.join(VALID_MEAL_TIMES)}"
-                )
+                raise ValidationError(f"Invalid meal time. Must be one of: {', '.join(VALID_MEAL_TIMES)}")
             planned_meal.meal_time = payload["meal_time"]
 
         if "completed" in payload:

@@ -36,9 +36,9 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
         String(36), ForeignKey("households.id", ondelete="SET NULL"), nullable=True, index=True
     )
 
-    household_members: Mapped[list["HouseholdMember"]] = relationship(
+    household_members: Mapped[list[HouseholdMember]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
-    households: Mapped[list["Household"]] = relationship(
+    households: Mapped[list[Household]] = relationship(
         back_populates="owner", foreign_keys="Household.owner_user_id", cascade="all, delete-orphan"
     )

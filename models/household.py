@@ -27,13 +27,13 @@ class Household(Base, TimestampMixin, SoftDeleteMixin):
     timezone: Mapped[str] = mapped_column(String(100), default="UTC", nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
-    owner: Mapped["User"] = relationship(back_populates="households", foreign_keys=[owner_user_id])
-    members: Mapped[list["HouseholdMember"]] = relationship(
+    owner: Mapped[User] = relationship(back_populates="households", foreign_keys=[owner_user_id])
+    members: Mapped[list[HouseholdMember]] = relationship(
         back_populates="household", cascade="all, delete-orphan"
     )
-    ingredients: Mapped[list["Ingredient"]] = relationship(back_populates="household", cascade="all, delete-orphan")
-    recipes: Mapped[list["Recipe"]] = relationship(back_populates="household", cascade="all, delete-orphan")
-    weekly_plans: Mapped[list["WeeklyPlan"]] = relationship(
+    ingredients: Mapped[list[Ingredient]] = relationship(back_populates="household", cascade="all, delete-orphan")
+    recipes: Mapped[list[Recipe]] = relationship(back_populates="household", cascade="all, delete-orphan")
+    weekly_plans: Mapped[list[WeeklyPlan]] = relationship(
         back_populates="household", cascade="all, delete-orphan"
     )
 

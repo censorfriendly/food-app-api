@@ -50,7 +50,7 @@ class IngredientService(BaseService[Ingredient]):
         if not ingredient or ingredient.household_id != household_id:
             raise NotFoundError("Ingredient not found")
 
-        if "name" in payload and payload["name"]:
+        if payload.get("name"):
             normalized_name = payload["name"].strip().lower()
             existing = self.ingredient_repo.get_by_normalized_name(household_id, normalized_name)
             if existing and existing.id != ingredient_id:

@@ -26,10 +26,10 @@ class WeeklyPlan(Base, TimestampMixin, SoftDeleteMixin):
     week_start: Mapped[date] = mapped_column(Date, nullable=False)
     created_by: Mapped[str | None] = mapped_column(String(36), nullable=True)
 
-    household: Mapped["Household"] = relationship(back_populates="weekly_plans")
-    planned_meals: Mapped[list["PlannedMeal"]] = relationship(
+    household: Mapped[Household] = relationship(back_populates="weekly_plans")
+    planned_meals: Mapped[list[PlannedMeal]] = relationship(
         back_populates="weekly_plan", cascade="all, delete-orphan"
     )
-    shopping_list: Mapped["ShoppingList | None"] = relationship(
+    shopping_list: Mapped[ShoppingList | None] = relationship(
         back_populates="weekly_plan", cascade="all, delete-orphan"
     )

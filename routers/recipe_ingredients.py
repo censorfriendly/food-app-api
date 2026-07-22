@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
-from core.deps import DbSession, CurrentUser, get_household_id
+from core.deps import CurrentUser, DbSession, get_household_id
 from exceptions.custom import AppError
 from schemas.common import SuccessResponse
 from schemas.recipe_ingredient import RecipeIngredientCreate, RecipeIngredientUpdate

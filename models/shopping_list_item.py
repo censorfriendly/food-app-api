@@ -28,6 +28,6 @@ class ShoppingListItem(Base, TimestampMixin, SoftDeleteMixin):
     added_manually: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     notes: Mapped[str | None] = mapped_column(String(2000), nullable=True)
 
-    shopping_list: Mapped["ShoppingList"] = relationship(back_populates="items")
-    ingredient: Mapped["Ingredient"] = relationship()
+    shopping_list: Mapped[ShoppingList] = relationship(back_populates="items")
+    ingredient: Mapped[Ingredient] = relationship()
 

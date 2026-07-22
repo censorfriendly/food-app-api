@@ -11,7 +11,6 @@ from models.base import SoftDeleteMixin, TimestampMixin
 
 if TYPE_CHECKING:
     from models.household import Household
-    from models.recipe import Recipe
     from models.recipe_ingredient import RecipeIngredient
 
 
@@ -33,7 +32,7 @@ class Ingredient(Base, TimestampMixin, SoftDeleteMixin):
     normalized_name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     category: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
-    household: Mapped["Household | None"] = relationship(back_populates="ingredients")
-    recipe_ingredients: Mapped[list["RecipeIngredient"]] = relationship(
+    household: Mapped[Household | None] = relationship(back_populates="ingredients")
+    recipe_ingredients: Mapped[list[RecipeIngredient]] = relationship(
         back_populates="ingredient", cascade="all, delete-orphan"
     )

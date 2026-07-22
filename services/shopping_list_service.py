@@ -17,21 +17,29 @@ class ShoppingListService:
     def _get_plan(self, household_id: str, week_start: date) -> WeeklyPlan:
         if week_start.weekday() != 0:
             raise ValidationError("week_start must be a Monday")
-        plan = self.db.query(WeeklyPlan).filter(
-            WeeklyPlan.household_id == household_id,
-            WeeklyPlan.week_start == week_start,
-            WeeklyPlan.is_deleted == False,
-        ).first()
+        plan = (
+            self.db.query(WeeklyPlan)
+            .filter(
+                WeeklyPlan.household_id == household_id,
+                WeeklyPlan.week_start == week_start,
+            )
+            .first()
+        )
         if not plan:
             raise NotFoundError("Weekly plan not found")
         return plan
 
     def _load_shopping_list(self, shopping_list_id: str) -> ShoppingList:
         """Load a shopping list with all relationships eager-loaded."""
-        return self.db.query(ShoppingList).options(
-            joinedload(ShoppingList.weekly_plan),
-            joinedload(ShoppingList.items).joinedload(ShoppingListItem.ingredient),
-        ).filter(ShoppingList.id == shopping_list_id).first()
+        return (
+            self.db.query(ShoppingList)
+            .options(
+                joinedload(ShoppingList.weekly_plan),
+                joinedload(ShoppingList.items).joinedload(ShoppingListItem.ingredient),
+            )
+            .filter(ShoppingList.id == shopping_list_id)
+            .first()
+        )
 
     def _serialize(self, shopping_list: ShoppingList) -> dict[str, Any]:
         """Serialize shopping list with nested ingredient names."""
@@ -56,19 +64,22 @@ class ShoppingListService:
 
     def get_for_week(self, household_id: str, week_start: date) -> dict[str, Any]:
         plan = self._get_plan(household_id, week_start)
-        shopping_list = self.db.query(ShoppingList).options(
-            joinedload(ShoppingList.weekly_plan),
-            joinedload(ShoppingList.items).joinedload(ShoppingListItem.ingredient),
-        ).filter(ShoppingList.weekly_plan_id == plan.id).first()
+        shopping_list = (
+            self.db.query(ShoppingList)
+            .options(
+                joinedload(ShoppingList.weekly_plan),
+                joinedload(ShoppingList.items).joinedload(ShoppingListItem.ingredient),
+            )
+            .filter(ShoppingList.weekly_plan_id == plan.id)
+            .first()
+        )
         if not shopping_list:
             raise NotFoundError("Shopping list not found")
         return self._serialize(shopping_list)
 
     def generate(self, household_id: str, week_start: date) -> dict[str, Any]:
         plan = self._get_plan(household_id, week_start)
-        shopping_list = self.db.query(ShoppingList).filter(
-            ShoppingList.weekly_plan_id == plan.id
-        ).first()
+        shopping_list = self.db.query(ShoppingList).filter(ShoppingList.weekly_plan_id == plan.id).first()
         if not shopping_list:
             shopping_list = ShoppingList(weekly_plan_id=plan.id)
             self.db.add(shopping_list)
@@ -101,18 +112,19 @@ class ShoppingListService:
 
     def add_item(self, household_id: str, week_start: date, payload: dict[str, Any]) -> dict[str, Any]:
         plan = self._get_plan(household_id, week_start)
-        shopping_list = self.db.query(ShoppingList).filter(
-            ShoppingList.weekly_plan_id == plan.id
-        ).first()
+        shopping_list = self.db.query(ShoppingList).filter(ShoppingList.weekly_plan_id == plan.id).first()
         if not shopping_list:
             shopping_list = ShoppingList(weekly_plan_id=plan.id)
             self.db.add(shopping_list)
             self.db.flush()
-        ingredient = self.db.query(Ingredient).filter(
-            Ingredient.id == payload["ingredient_id"],
-            Ingredient.household_id == household_id,
-            Ingredient.is_deleted == False,
-        ).first()
+        ingredient = (
+            self.db.query(Ingredient)
+            .filter(
+                Ingredient.id == payload["ingredient_id"],
+                Ingredient.household_id == household_id,
+            )
+            .first()
+        )
         if not ingredient:
             raise NotFoundError("Ingredient not found")
         item = ShoppingListItem(
@@ -130,11 +142,16 @@ class ShoppingListService:
         return self._serialize(shopping_list)
 
     def update_item(self, household_id: str, item_id: str, payload: dict[str, Any]) -> dict[str, Any]:
-        item = self.db.query(ShoppingListItem).join(ShoppingList).join(WeeklyPlan).filter(
-            ShoppingListItem.id == item_id,
-            WeeklyPlan.household_id == household_id,
-            ShoppingListItem.is_deleted == False,
-        ).first()
+        item = (
+            self.db.query(ShoppingListItem)
+            .join(ShoppingList)
+            .join(WeeklyPlan)
+            .filter(
+                ShoppingListItem.id == item_id,
+                WeeklyPlan.household_id == household_id,
+            )
+            .first()
+        )
         if not item:
             raise NotFoundError("Shopping list item not found")
         for field in ("checked", "quantity", "measurement_unit", "notes"):

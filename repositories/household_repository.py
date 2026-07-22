@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -15,7 +14,7 @@ class HouseholdRepository(BaseRepository[Household]):
     def model_type(self):
         return Household
 
-    def get_by_name_for_owner(self, owner_user_id: str, name: str) -> Optional[Household]:
+    def get_by_name_for_owner(self, owner_user_id: str, name: str) -> Household | None:
         return self.db.query(Household).filter(Household.owner_user_id == owner_user_id, Household.name == name).first()
 
 

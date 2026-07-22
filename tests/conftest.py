@@ -1,18 +1,16 @@
 import pytest
-from httpx import AsyncClient, ASGITransport
-
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from main import app
-from database.connection import Base
 from core.deps import get_db
-
+from database.connection import Base, FilteredSession
+from main import app
 
 # Use SQLite for tests to avoid requiring PostgreSQL
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+TestingSessionLocal = sessionmaker(bind=engine, class_=FilteredSession, autocommit=False, autoflush=False)
 
 
 @pytest.fixture(autouse=True)

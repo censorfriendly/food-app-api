@@ -1,4 +1,3 @@
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -20,7 +19,7 @@ class HouseholdListItem(BaseModel):
     id: str
     name: str
     timezone: str
-    role: Optional[str] = None
+    role: str | None = None
     is_default: bool = False
 
     model_config = {"from_attributes": True}
@@ -30,7 +29,7 @@ class HouseholdOut(BaseModel):
     id: str
     name: str
     timezone: str
-    owner: Optional[dict] = None
+    owner: dict | None = None
 
     model_config = {"from_attributes": True}
 

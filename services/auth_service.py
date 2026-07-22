@@ -1,11 +1,9 @@
-from datetime import datetime, timezone
-import hashlib
-import time
+from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
 from config.settings import get_settings
-from core.security import create_access_token, create_refresh_token
+from core.security import create_access_token, create_refresh_token, decode_token
 from models.household import Household
 from models.household_member import HouseholdMember
 from models.user import User
@@ -15,7 +13,6 @@ settings = get_settings()
 
 
 class AuthService:
-
     def __init__(self, db: Session):
         self.db = db
         self.user_repo = UserRepository(db)
@@ -56,7 +53,7 @@ class AuthService:
                 first_name="Developer",
                 last_name="User",
                 is_fake_login=True,
-                last_login_at=datetime.now(timezone.utc),
+                last_login_at=datetime.now(UTC),
             )
             self.user_repo.create(user)
             self._create_default_household(user)
@@ -74,7 +71,7 @@ class AuthService:
             else:
                 self._create_default_household(user)
 
-        user.last_login_at = datetime.now(timezone.utc)
+        user.last_login_at = datetime.now(UTC)
         self.db.commit()
 
         return self._build_token_pair(user)
@@ -99,7 +96,6 @@ class AuthService:
         Validate refresh token and issue new token pair.
         TODO: Implement token blacklist / rotation.
         """
-        from core.security import decode_token
 
         payload = decode_token(refresh_token)
         if not payload or payload.get("type") != "refresh":

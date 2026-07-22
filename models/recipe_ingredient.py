@@ -29,6 +29,6 @@ class RecipeIngredient(Base, TimestampMixin, SoftDeleteMixin):
     optional: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     display_order: Mapped[int] = mapped_column(default=0, nullable=False)
 
-    recipe: Mapped["Recipe"] = relationship(back_populates="ingredients")
-    ingredient: Mapped["Ingredient"] = relationship(back_populates="recipe_ingredients")
+    recipe: Mapped[Recipe] = relationship(back_populates="ingredients")
+    ingredient: Mapped[Ingredient] = relationship(back_populates="recipe_ingredients")
 

@@ -1,12 +1,11 @@
 from typing import Annotated
 
 from fastapi import Depends, HTTPException
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
-from database.connection import get_db as get_db_session
 from core.security import get_current_user_from_token
+from database.connection import get_db as get_db_session
 from exceptions.custom import AuthenticationError
 from models.user import User
 

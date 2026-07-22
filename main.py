@@ -2,10 +2,25 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from config.settings import get_settings
 from core.middleware import LoggingMiddleware
+from database.connection import Base, engine
 from exceptions.custom import AppError
+
+# Mount routers
+from routers import (
+    auth,
+    health,
+    households,
+    ingredients,
+    planned_meals,
+    recipe_ingredients,
+    recipes,
+    shopping_lists,
+    weekly_plans,
+)
 from schemas.common import ErrorResponse
 
 settings = get_settings()
@@ -14,7 +29,6 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Schema changes belong in Alembic migrations, not application startup.
-    from database.connection import Base, engine
 
     if settings.DEBUG:
         Base.metadata.create_all(bind=engine)
@@ -38,18 +52,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Exception handler for custom errors
 @app.exception_handler(AppError)
 async def app_error_handler(request, exc):
-    from fastapi.responses import JSONResponse
-
     return JSONResponse(
         status_code=exc.status_code,
         content=ErrorResponse(error=exc.detail).model_dump(),
     )
 
-# Mount routers
-from routers import health, auth, households, recipes, ingredients, recipe_ingredients, weekly_plans, planned_meals, shopping_lists
 
 app.include_router(health.router)
 app.include_router(auth.router)
@@ -60,4 +71,3 @@ app.include_router(recipe_ingredients.router)
 app.include_router(weekly_plans.router)
 app.include_router(planned_meals.router)
 app.include_router(shopping_lists.router)
-

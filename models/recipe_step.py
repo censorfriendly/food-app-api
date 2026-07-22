@@ -23,4 +23,4 @@ class RecipeStep(Base, TimestampMixin, SoftDeleteMixin):
     step_number: Mapped[int] = mapped_column(Integer, nullable=False)
     instructions: Mapped[str] = mapped_column(String(4000), nullable=False)
 
-    recipe: Mapped["Recipe"] = relationship(back_populates="steps")
+    recipe: Mapped[Recipe] = relationship(back_populates="steps")

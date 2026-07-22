@@ -2,13 +2,17 @@ from datetime import date
 
 from fastapi import APIRouter, HTTPException, Query
 
-from core.deps import DbSession, CurrentUser, get_household_id
+from core.deps import CurrentUser, DbSession, get_household_id
 from exceptions.custom import AppError
 from schemas.common import SuccessResponse
 from schemas.weekly_plan import WeeklyPlanCreate, WeeklyPlanUpdate
 from services.weekly_plan_service import WeeklyPlanService
 
 router = APIRouter(prefix="/api/v1/weekly-plans", tags=["Weekly Plans"])
+
+# Module-level Query defaults to avoid B008 (function calls in argument defaults)
+START_DATE_DEFAULT = Query(default=None)
+END_DATE_DEFAULT = Query(default=None)
 
 
 @router.post("", response_model=SuccessResponse, status_code=201)
@@ -33,8 +37,8 @@ async def create_weekly_plan(payload: WeeklyPlanCreate, db: DbSession, current_u
 async def list_weekly_plans(
     db: DbSession,
     current_user: CurrentUser,
-    start_date: date | None = Query(default=None),
-    end_date: date | None = Query(default=None),
+    start_date: date | None = START_DATE_DEFAULT,
+    end_date: date | None = END_DATE_DEFAULT,
 ):
     try:
         household_id = get_household_id(current_user)
@@ -66,9 +70,7 @@ async def get_weekly_plan(plan_id: str, db: DbSession, current_user: CurrentUser
 
 
 @router.put("/{plan_id}", response_model=SuccessResponse)
-async def update_weekly_plan(
-    plan_id: str, payload: WeeklyPlanUpdate, db: DbSession, current_user: CurrentUser
-):
+async def update_weekly_plan(plan_id: str, payload: WeeklyPlanUpdate, db: DbSession, current_user: CurrentUser):
     try:
         household_id = get_household_id(current_user)
 

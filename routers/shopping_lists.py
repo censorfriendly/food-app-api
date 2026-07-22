@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter, HTTPException
 
 from core.deps import CurrentUser, DbSession, get_household_id
@@ -26,8 +28,6 @@ async def get_shopping_list(
     current_user: CurrentUser,
 ):
     try:
-        from datetime import date
-
         household_id = get_household_id(current_user)
         data = ShoppingListService(db).get_for_week(household_id, date.fromisoformat(week_start))
         return SuccessResponse(data=data)
@@ -63,8 +63,6 @@ async def add_shopping_list_item(
     current_user: CurrentUser,
 ):
     try:
-        from datetime import date
-
         household_id = get_household_id(current_user)
         data = ShoppingListService(db).add_item(
             household_id,

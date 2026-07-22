@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -23,7 +22,7 @@ class IngredientRepository(BaseRepository[Ingredient]):
             .all()
         )
 
-    def get_by_normalized_name(self, household_id: str, normalized_name: str) -> Optional[Ingredient]:
+    def get_by_normalized_name(self, household_id: str, normalized_name: str) -> Ingredient | None:
         return (
             self.db.query(Ingredient)
             .filter(Ingredient.household_id == household_id, Ingredient.normalized_name == normalized_name)

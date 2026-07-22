@@ -29,5 +29,5 @@ class PlannedMeal(Base, TimestampMixin, SoftDeleteMixin):
     completed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     notes: Mapped[str | None] = mapped_column(String(2000), nullable=True)
 
-    weekly_plan: Mapped["WeeklyPlan"] = relationship(back_populates="planned_meals")
-    recipe: Mapped["Recipe"] = relationship()
+    weekly_plan: Mapped[WeeklyPlan] = relationship(back_populates="planned_meals")
+    recipe: Mapped[Recipe] = relationship()

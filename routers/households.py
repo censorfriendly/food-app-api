@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
-from core.deps import DbSession, CurrentUser
+from core.deps import CurrentUser, DbSession
 from exceptions.custom import AppError
 from schemas.common import SuccessResponse
 from schemas.household import DefaultHouseholdRequest, HouseholdCreate, HouseholdInviteRequest

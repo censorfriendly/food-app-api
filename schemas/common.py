@@ -1,15 +1,16 @@
-from typing import Optional, Any, Dict
+from typing import Any
+
 from pydantic import BaseModel
 
 
 class SuccessResponse(BaseModel):
     success: bool = True
-    data: Optional[Any] = None
+    data: Any | None = None
 
 
 class ErrorResponse(BaseModel):
     success: bool = False
-    error: Optional[Dict[str, str]] = None
+    error: dict[str, str] | None = None
 
 
 class PaginatedResponse(BaseModel):

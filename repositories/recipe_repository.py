@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -20,5 +19,5 @@ class RecipeRepository(BaseRepository[Recipe]):
             query = query.filter(Recipe.title.ilike(f"%{q}%"))
         return query.offset(skip).limit(limit).all()
 
-    def get_by_title(self, household_id: str, title: str) -> Optional[Recipe]:
+    def get_by_title(self, household_id: str, title: str) -> Recipe | None:
         return self.db.query(Recipe).filter(Recipe.household_id == household_id, Recipe.title == title).first()

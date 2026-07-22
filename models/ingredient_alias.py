@@ -22,4 +22,4 @@ class IngredientAlias(Base, TimestampMixin, SoftDeleteMixin):
     )
     alias: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
 
-    ingredient: Mapped["Ingredient"] = relationship()
+    ingredient: Mapped[Ingredient] = relationship()

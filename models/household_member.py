@@ -31,5 +31,5 @@ class HouseholdMember(Base, TimestampMixin, SoftDeleteMixin):
     accepted_at: Mapped[str | None] = mapped_column(String(64), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
-    household: Mapped["Household"] = relationship(back_populates="members")
-    user: Mapped["User"] = relationship(back_populates="household_members")
+    household: Mapped[Household] = relationship(back_populates="members")
+    user: Mapped[User] = relationship(back_populates="household_members")

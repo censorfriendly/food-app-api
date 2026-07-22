@@ -1,35 +1,34 @@
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
 
 class RecipeCreate(BaseModel):
     title: str = Field(..., min_length=1, max_length=255)
-    description: Optional[str] = None
-    servings: Optional[int] = None
-    prep_minutes: Optional[int] = None
-    cook_minutes: Optional[int] = None
-    notes: Optional[str] = None
+    description: str | None = None
+    servings: int | None = None
+    prep_minutes: int | None = None
+    cook_minutes: int | None = None
+    notes: str | None = None
 
 
 class RecipeUpdate(BaseModel):
-    title: Optional[str] = Field(None, min_length=1, max_length=255)
-    description: Optional[str] = None
-    servings: Optional[int] = None
-    prep_minutes: Optional[int] = None
-    cook_minutes: Optional[int] = None
-    notes: Optional[str] = None
+    title: str | None = Field(None, min_length=1, max_length=255)
+    description: str | None = None
+    servings: int | None = None
+    prep_minutes: int | None = None
+    cook_minutes: int | None = None
+    notes: str | None = None
 
 
 class RecipeOut(BaseModel):
     id: str
     household_id: str
     title: str
-    description: Optional[str] = None
-    servings: Optional[int] = None
-    prep_minutes: Optional[int] = None
-    cook_minutes: Optional[int] = None
-    notes: Optional[str] = None
+    description: str | None = None
+    servings: int | None = None
+    prep_minutes: int | None = None
+    cook_minutes: int | None = None
+    notes: str | None = None
 
     model_config = {"from_attributes": True}
 
