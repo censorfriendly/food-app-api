@@ -19,7 +19,7 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "users"
     __table_args__ = (
         UniqueConstraint("email", name="uq_users_email"),
-        UniqueConstraint("google_sub", name="uq_users_google_sub"),
+        UniqueConstraint("auth_provider", "provider_user_id", name="uq_users_auth_provider_user_id"),
     )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
@@ -30,15 +30,14 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
     status: Mapped[str] = mapped_column(String(50), default="Active", nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     is_fake_login: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    google_sub: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
+    auth_provider: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    provider_user_id: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     default_household_id: Mapped[str | None] = mapped_column(
         String(36), ForeignKey("households.id", ondelete="SET NULL"), nullable=True, index=True
     )
 
-    household_members: Mapped[list[HouseholdMember]] = relationship(
-        back_populates="user", cascade="all, delete-orphan"
-    )
+    household_members: Mapped[list[HouseholdMember]] = relationship(back_populates="user", cascade="all, delete-orphan")
     households: Mapped[list[Household]] = relationship(
         back_populates="owner", foreign_keys="Household.owner_user_id", cascade="all, delete-orphan"
     )

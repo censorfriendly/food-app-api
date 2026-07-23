@@ -1,5 +1,7 @@
 from datetime import UTC, datetime
 
+from google.auth.transport import requests
+from google.oauth2 import id_token
 from sqlalchemy.orm import Session
 
 from config.settings import get_settings
@@ -76,20 +78,62 @@ class AuthService:
 
         return self._build_token_pair(user)
 
-    def google_login(self, id_token: str) -> dict:
+    def google_login(self, token: str) -> dict:
         """
-        Validate Google ID token and return JWT tokens + user profile.
-        TODO: Integrate google-auth library for token verification.
+        Verify Google ID token, find or create the user, and return JWT tokens.
         """
-        # TODO: Verify id_token with Google
-        # info = google.oauth2.id_token.verify_oauth2_token(id_token, google.auth.transport.requests.Request())
-        # google_sub = info["sub"]
-        # email = info["email"]
-        # name = info.get("name")
-        # picture = info.get("picture")
+        info = id_token.verify_oauth2_token(token, requests.Request(), get_settings().GOOGLE_CLIENT_ID)
 
-        # For now, placeholder — real implementation requires Google OAuth credentials
-        raise NotImplementedError("Google SSO requires valid OAuth credentials")
+        if info["iss"] not in [
+            "accounts.google.com",
+            "https://accounts.google.com",
+        ]:
+            raise ValueError("Invalid Google issuer")
+
+        google_id = info["sub"]
+        email = info["email"]
+        full_name = info.get("name", "")
+        first_name, last_name = (full_name.split(" ", 1) + [None] * 2)[:2] if full_name else (None, None)
+
+        # Look up existing user by provider
+        user = self.user_repo.get_by_provider("google", google_id)
+
+        if not user:
+            # Check if an account with this email already exists
+            user = self.user_repo.get_by_email(email)
+            if user and not user.auth_provider:
+                # Link Google to existing account
+                user.auth_provider = "google"
+                user.provider_user_id = google_id
+            elif not user:
+                # Create new user
+                user = User(
+                    email=email,
+                    first_name=first_name,
+                    last_name=last_name,
+                    auth_provider="google",
+                    provider_user_id=google_id,
+                    last_login_at=datetime.now(UTC),
+                )
+                self.user_repo.create(user)
+                self._create_default_household(user)
+                self.db.commit()
+
+        if not user.default_household_id:
+            household = (
+                self.db.query(Household)
+                .join(HouseholdMember)
+                .filter(HouseholdMember.user_id == user.id, HouseholdMember.is_active.is_(True))
+                .first()
+            )
+            if household:
+                user.default_household_id = household.id
+            else:
+                self._create_default_household(user)
+
+        user.last_login_at = datetime.now(UTC)
+        self.db.commit()
+        return self._build_token_pair(user)
 
     def refresh(self, refresh_token: str) -> dict:
         """
