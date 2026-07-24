@@ -30,8 +30,7 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     # Schema changes belong in Alembic migrations, not application startup.
 
-    if settings.DEBUG:
-        Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
     yield
     # Shutdown
 
